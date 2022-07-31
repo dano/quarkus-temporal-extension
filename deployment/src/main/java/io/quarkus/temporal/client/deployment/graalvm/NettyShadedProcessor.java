@@ -9,6 +9,7 @@ import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
+import io.quarkus.deployment.builditem.nativeimage.NativeImageAllowIncompleteClasspathBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.RuntimeInitializedPackageBuildItem;
@@ -68,16 +69,14 @@ public class NettyShadedProcessor {
         reflections.produce(new ReflectiveClassBuildItem(true, true, false, "io.grpc.util.SecretRoundRobinLoadBalancerProvider$Provider"));
         reflections.produce(new ReflectiveClassBuildItem(true, true, false, NettyChannelProvider.class));
         reflections.produce(new ReflectiveClassBuildItem(true, true, true, ReadableBuffers.class));
+        reflections.produce(new ReflectiveClassBuildItem(true, true, true, "io.grpc.netty.shaded.io.grpc.netty.UdsNameResolverProvider"));
     }
 
-    /**
-     * The next step fails to package the project
-     * /* [ERROR] [error]: Build step io.quarkus.deployment.steps.NativeImageResourcesStep#registerPackageResources threw an exception: java.lang.StringIndexOutOfBoundsException: begin 0, end -1, length 65
-     */
-    //    @BuildStep
-    //    void addNativeResourceForNettyShaded(BuildProducer<NativeImageResourceDirectoryBuildItem> resourceBuildItem) {
-    //        resourceBuildItem.produce(new NativeImageResourceDirectoryBuildItem("META-INF"));
-    //    }
+    @BuildStep
+    NativeImageAllowIncompleteClasspathBuildItem allow() {
+        return new NativeImageAllowIncompleteClasspathBuildItem("temporal-client");
+    }
+
     @BuildStep
     void runTimeInitializationForNettyShaded(BuildProducer<RuntimeInitializedClassBuildItem> runtimeInitialized,
                                              BuildProducer<RuntimeInitializedPackageBuildItem> runtimePackages) {
@@ -92,6 +91,9 @@ public class NettyShadedProcessor {
         runtimeInitialized.produce(new RuntimeInitializedClassBuildItem("io.grpc.netty.shaded.io.netty.internal.tcnative.SSL"));
         runtimeInitialized.produce(new RuntimeInitializedClassBuildItem("io.grpc.netty.shaded.io.netty.internal.tcnative.CertificateVerifier"));
         runtimeInitialized.produce(new RuntimeInitializedClassBuildItem("io.grpc.netty.shaded.io.netty.internal.tcnative.SSLPrivateKeyMethod"));
+        runtimeInitialized.produce(new RuntimeInitializedClassBuildItem("io.grpc.netty.shaded.io.netty.internal.tcnative.AsyncSSLPrivateKeyMethod"));
+        runtimeInitialized.produce(new RuntimeInitializedClassBuildItem("io.grpc.netty.shaded.io.netty.handler.ssl.OpenSslPrivateKeyMethod"));
+        runtimeInitialized.produce(new RuntimeInitializedClassBuildItem("io.grpc.netty.shaded.io.netty.handler.ssl.OpenSslAsyncPrivateKeyMethod"));
 
         runtimePackages.produce(new RuntimeInitializedPackageBuildItem("io.grpc.netty.shaded.io.grpc.netty"));
         runtimePackages.produce(new RuntimeInitializedPackageBuildItem("io.grpc.netty.shaded.io.netty.channel.epoll"));

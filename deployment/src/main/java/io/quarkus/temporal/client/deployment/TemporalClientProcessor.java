@@ -152,6 +152,7 @@ class TemporalClientProcessor {
         // temporal classes
         proxies.produce(new NativeImageProxyDefinitionBuildItem("io.temporal.serviceclient.WorkflowServiceStubs"));
         proxies.produce(new NativeImageProxyDefinitionBuildItem("io.temporal.client.WorkflowClient"));
+        proxies.produce(new NativeImageProxyDefinitionBuildItem("io.temporal.client.ActivityCompletionClient"));
 
         // app classes
         proxies.produce(new NativeImageProxyDefinitionBuildItem(proxiesToStubMarker.stream().filter(p -> !p.equalsIgnoreCase("io.temporal.internal.sync.StubMarker")).collect(Collectors.toList())));

@@ -1,6 +1,7 @@
 package io.quarkus.temporal.runtime;
 
 import io.quarkus.arc.Arc;
+import io.quarkus.arc.Subclass;
 import io.quarkus.runtime.Startup;
 import io.quarkus.temporal.runtime.annotations.TemporalActivity;
 import io.quarkus.temporal.runtime.annotations.TemporalActivityStub;
@@ -35,7 +36,7 @@ public class TemporalBeansProducer {
                 .setTarget(temporalServerBuildTimeConfig.serviceUrl)
                 .build();
 
-        WorkflowServiceStubs service = WorkflowServiceStubs.newInstance(options);
+        WorkflowServiceStubs service = WorkflowServiceStubs.newServiceStubs(options);
         return WorkflowClient.newInstance(service);
     }
 
@@ -57,9 +58,13 @@ public class TemporalBeansProducer {
             for (String clazzName : classNames) {
                 Class clazz = classLoader.loadClass(clazzName);
                 activities[c] = Arc.container().select(clazz).get();
-                for (Class interfacei : activities[c].getClass().getInterfaces()) {
+                Class<?> implClass = activities[c].getClass();
+                if (activities[c] instanceof Subclass) {
+                    implClass = implClass.getSuperclass();
+                }
+                for (Class interfacei : implClass.getInterfaces()) {
                     if (interfacei.isAnnotationPresent(ActivityInterface.class)) {
-                        TemporalActivity ta = activities[c].getClass().getAnnotation(TemporalActivity.class);
+                        TemporalActivity ta = implClass.getAnnotation(TemporalActivity.class);
                         workflowRuntimeBuildItem.putActivityInterfaceInfo(interfacei, queue, ta.name());
                         break;
                     }
