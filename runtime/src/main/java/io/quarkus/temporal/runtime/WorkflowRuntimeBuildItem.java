@@ -35,6 +35,7 @@ public final class WorkflowRuntimeBuildItem {
 
 
     private List<String> activitiesFlat = new ArrayList<>();
+    private List<String> workflowsFlat = new ArrayList<>();
 
 
     public WorkflowRuntimeBuildItem() {
@@ -56,6 +57,7 @@ public final class WorkflowRuntimeBuildItem {
     }
 
     public void addWorkflowImpl(String queue, String clazz) {
+        workflowsFlat.add(clazz);
         if (workflows.containsKey(queue)) {
             workflows.get(queue).add(clazz);
         } else {
@@ -118,5 +120,9 @@ public final class WorkflowRuntimeBuildItem {
 
     public List<String> getActivitiesFlat() {
         return activitiesFlat;
+    }
+
+    public List<String> getWorkflowsFlat() {
+        return workflowsFlat;
     }
 }

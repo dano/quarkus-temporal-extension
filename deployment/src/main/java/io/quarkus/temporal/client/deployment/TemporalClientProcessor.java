@@ -169,7 +169,8 @@ class TemporalClientProcessor {
 
         additionalBeans.produce(AdditionalBeanBuildItem.builder().setUnremovable()
                 .addBeanClasses(workflowBuildItem.getWorkflowRuntimeBuildItems().getActivitiesFlat())
-                .build());
+                .addBeanClasses(workflowBuildItem.getWorkflowRuntimeBuildItems().getWorkflowsFlat())
+            .build());
 
         additionalBeans.produce(AdditionalBeanBuildItem.builder().addBeanClass(TemporalBeansProducer.class).build());
     }

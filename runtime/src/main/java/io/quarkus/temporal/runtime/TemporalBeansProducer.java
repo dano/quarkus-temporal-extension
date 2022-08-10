@@ -59,6 +59,9 @@ public class TemporalBeansProducer {
                 Class clazz = classLoader.loadClass(clazzName);
                 activities[c] = Arc.container().select(clazz).get();
                 Class<?> implClass = activities[c].getClass();
+                //TODO probably a better way to do this is to search all interfaces of the classes
+                // hierarchy for the ActivityInterface annotation, rather than checking specifically for
+                // Subclass and only grabbing the super class.
                 if (activities[c] instanceof Subclass) {
                     implClass = implClass.getSuperclass();
                 }
@@ -131,7 +134,7 @@ public class TemporalBeansProducer {
         public synchronized Object apply() {
 
             try {
-                Object workflow = workflowImplClass.getConstructor().newInstance();
+                Object workflow = Arc.container().select(workflowImplClass).get();//workflowImplClass.getConstructor().newInstance();
                 fillActivitiesStubs(workflow);
                 return workflow;
             } catch (Exception e) {
