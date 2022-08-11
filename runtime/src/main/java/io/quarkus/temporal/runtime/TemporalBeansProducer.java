@@ -56,16 +56,15 @@ public class TemporalBeansProducer {
             Object[] activities = new Object[classNames.size()];
             int c = 0;
             for (String clazzName : classNames) {
-                Class clazz = classLoader.loadClass(clazzName);
+                Class<?> clazz = classLoader.loadClass(clazzName);
                 activities[c] = Arc.container().select(clazz).get();
+                //TODO This should be refactored to just start from the classes implemented with TemporalActivity,
+                // rather than with interfaces..
                 Class<?> implClass = activities[c].getClass();
-                //TODO probably a better way to do this is to search all interfaces of the classes
-                // hierarchy for the ActivityInterface annotation, rather than checking specifically for
-                // Subclass and only grabbing the super class.
                 if (activities[c] instanceof Subclass) {
                     implClass = implClass.getSuperclass();
                 }
-                for (Class interfacei : implClass.getInterfaces()) {
+                for (Class<?> interfacei : implClass.getInterfaces()) {
                     if (interfacei.isAnnotationPresent(ActivityInterface.class)) {
                         TemporalActivity ta = implClass.getAnnotation(TemporalActivity.class);
                         workflowRuntimeBuildItem.putActivityInterfaceInfo(interfacei, queue, ta.name());
